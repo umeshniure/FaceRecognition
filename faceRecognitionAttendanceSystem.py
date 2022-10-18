@@ -1,7 +1,9 @@
 import os
 import cv2 as cv
 import numpy as np
+from tkinter import *
 import face_recognition
+import pyttsx3 as pytts
 from datetime import datetime
 from playsound import playsound
 
@@ -10,19 +12,14 @@ images = []
 image_names = []
 encode_list_known = []
 image_list = os.listdir(attendance_image_path)
-
-print('Getting Started...')
-
-
-def loadAllImages():
-    print(image_list)
-    for image in image_list:
-        current_img = cv.imread(f'{attendance_image_path}/{image}')
-        images.append(current_img)
-        image_names.append(os.path.splitext(image)[0])
-
-
-loadAllImages()
+print('-----------------------------------------------')
+print('|               Getting Started...            |')
+print('-----------------------------------------------')
+print('Loading Images...')
+for image in image_list:
+    current_img = cv.imread(f'{attendance_image_path}/{image}')
+    images.append(current_img)
+    image_names.append(os.path.splitext(image)[0])
 
 
 def markAttendance(name):
@@ -53,15 +50,32 @@ def encodeOneImage(image):
 
 
 def captureUnknownFace(image):
-    global encode_list_known, image_list
-    print("Enter name: ")
-    image_name = input()
-    cv.imwrite((attendance_image_path + '/' + image_name + '.jpg'), image)
-    print('Image saved successfully.')
-    image_list = os.listdir(attendance_image_path)
-    loadAllImages()
-    encode_list_known.append(encodeOneImage(image))
-    # encode_list_known = findEncodings(images)
+    global encode_list_known
+
+    window = Tk()
+    window.title('Enter Image Name')
+    window.geometry('350x200')
+    lbl = Label(window, text="Enter Name: ", font=('Arial Bold', 10), padx=10, pady=20)
+    lbl.pack(padx=10, pady=30)
+    lbl.grid(column=0, row=0)
+
+    def clicked(event=None):
+        global image_list, image_names
+        if txt.get() is not None:
+            image_name = txt.get()
+            cv.imwrite((attendance_image_path + '/' + image_name + '.jpg'), image)
+            print('Image saved successfully.')
+            image_list = os.listdir(attendance_image_path)
+            image_names.append(image_name)
+            encode_list_known.append(encodeOneImage(image))
+            window.destroy()
+
+    txt = Entry(window, width=20, font=('Arial 12'), bg='white')
+    txt.bind('<Return>', clicked)
+    txt.grid(column=1, row=0, pady=20)
+    btn = Button(window, text="Save", command=clicked, height=2, width=15)
+    btn.grid(column=1, row=1, pady=10)
+    window.mainloop()
 
 
 # encode list of known images
@@ -74,6 +88,8 @@ camera = cv.VideoCapture(0)
 temp = ''
 while True:
     success, frame_image = camera.read()
+    cv.imshow('Camera', frame_image)
+
     rescaled_image = cv.resize(frame_image, (0, 0), None, 0.5, 0.5)
     rescaled_image = cv.cvtColor(rescaled_image, cv.COLOR_BGR2RGB)
 
@@ -83,7 +99,6 @@ while True:
     for encode_face, face_location in zip(encoded_current_frame, current_frame_location):
         matches = face_recognition.compare_faces(encode_list_known, encode_face)
         face_distance = face_recognition.face_distance(encode_list_known, encode_face)
-
         match_index = np.argmin(face_distance)
         if matches[match_index]:
             name = image_names[match_index].upper()
@@ -92,15 +107,29 @@ while True:
             cv.rectangle(frame_image, (x1, y1), (x2, y2), (0, 255, 0), 3)
             cv.rectangle(frame_image, (x1 - 2, y2 + 35), (x2 + 2, y2), (0, 255, 0), cv.FILLED)
             cv.putText(frame_image, f'{name}', (x1 + 6, y2 + 25), cv.FONT_HERSHEY_DUPLEX, 0.5, (0, 0, 255), 1)
+            cv.imshow('Camera', frame_image)
             if markAttendance(name):
                 print(f"'{name}', your attendance is registered successfully.")
                 cv.rectangle(frame_image, (x1, y1), (x2, y2), (0, 255, 0), cv.FILLED)
-                playsound('Audio/well_done.mp3', False)
+                cv.imshow('Camera', frame_image)
+                playsound('Audio/well_done.mp3')
+
+                engine = pytts.init()
+                engine.say(name + ', Your Attendance is completed.')
+                engine.runAndWait()
+                engine.stop()
             else:
                 if temp != name:
                     cv.putText(frame_image, f'{name} (Done)', (x1 + 6, y2 + 25), cv.FONT_HERSHEY_DUPLEX, 0.5,
                                (0, 0, 255), 1)
+                    cv.imshow('Camera', frame_image)
                     print(f"'{name}', your attendance is already registered.")
+
+                    engine = pytts.init()
+                    engine.say(name + ', Your Attendance is already registered.')
+                    engine.runAndWait()
+                    engine.stop()
+
                     temp = name
                 else:
                     cv.putText(frame_image, f'{name} (Done)', (x1 + 6, y2 + 25), cv.FONT_HERSHEY_DUPLEX, 0.5,
@@ -113,12 +142,12 @@ while True:
             cv.rectangle(frame_image, (x1, y1), (x2, y2), (0, 255, 0), 3)
             cv.rectangle(frame_image, (x1 - 2, y2 + 35), (x2 + 2, y2), (0, 255, 0), cv.FILLED)
             cv.putText(frame_image, 'Unknown', (x1 + 6, y2 + 25), cv.FONT_HERSHEY_DUPLEX, 0.5, (0, 0, 255), 1)
+            cv.imshow('Camera', frame_image)
 
             if cv.waitKey(1) == ord("s"):
                 captureUnknownFace(image_copy)
                 del image_copy
 
-        cv.imshow('Camera', frame_image)
     cv.imshow('Camera', frame_image)
     if cv.waitKey(1) == ord("q"):
         break
