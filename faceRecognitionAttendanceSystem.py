@@ -114,10 +114,10 @@ while True:
                 cv.imshow('Camera', frame_image)
                 playsound('Audio/well_done.mp3')
 
-                engine = pytts.init()
-                engine.say(name + ', Your Attendance is completed.')
-                engine.runAndWait()
-                engine.stop()
+                # engine = pytts.init()
+                # engine.say(name + ', Your Attendance is completed.')
+                # engine.runAndWait()
+                # engine.stop()
             else:
                 if temp != name:
                     cv.putText(frame_image, f'{name} (Done)', (x1 + 6, y2 + 25), cv.FONT_HERSHEY_DUPLEX, 0.5,
@@ -125,10 +125,10 @@ while True:
                     cv.imshow('Camera', frame_image)
                     print(f"'{name}', your attendance is already registered.")
 
-                    engine = pytts.init()
-                    engine.say(name + ', Your Attendance is already registered.')
-                    engine.runAndWait()
-                    engine.stop()
+                    # engine = pytts.init()
+                    # engine.say(name + ', Your Attendance is already registered.')
+                    # engine.runAndWait()
+                    # engine.stop()
 
                     temp = name
                 else:
