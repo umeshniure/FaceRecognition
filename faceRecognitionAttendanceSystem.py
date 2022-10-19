@@ -13,13 +13,13 @@ image_names = []
 encode_list_known = []
 image_list = os.listdir(attendance_image_path)
 print('-----------------------------------------------')
-print('|               Getting Started...            |')
+print('|              Getting Started...             |')
 print('-----------------------------------------------')
 print('Loading Images...')
 for image in image_list:
     current_img = cv.imread(f'{attendance_image_path}/{image}')
     images.append(current_img)
-    image_names.append(os.path.splitext(image)[0])
+    image_names.append(os.path.splitext(image)[0].title())
 
 
 def markAttendance(name):
@@ -50,31 +50,45 @@ def encodeOneImage(image):
 
 
 def captureUnknownFace(image):
-    global encode_list_known
-
     window = Tk()
     window.title('Enter Image Name')
-    window.geometry('350x200')
-    lbl = Label(window, text="Enter Name: ", font=('Arial Bold', 10), padx=10, pady=20)
-    lbl.pack(padx=10, pady=30)
+    window.geometry('350x150')
+    lbl = Label(window, text="Enter Name: ", font=('Arial Bold', 10), padx=10, pady=10)
     lbl.grid(column=0, row=0)
 
     def clicked(event=None):
-        global image_list, image_names
-        if txt.get() is not None:
-            image_name = txt.get()
-            cv.imwrite((attendance_image_path + '/' + image_name + '.jpg'), image)
-            print('Image saved successfully.')
-            image_list = os.listdir(attendance_image_path)
-            image_names.append(image_name)
-            encode_list_known.append(encodeOneImage(image))
-            window.destroy()
+        global image_list, image_names, encode_list_known
+        image_name = txt.get().title()
+        if image_name != '':
+            if image_name in image_names:
+                updated_name = image_name
+                count = 0
+                while os.path.isfile(attendance_image_path + '/' + updated_name + '.jpg') \
+                        or os.path.isfile(attendance_image_path + '/' + updated_name + '.png'):
+                    count = count + 1
+                    updated_name = image_name + ' ' + str(count)
+                cv.imwrite((attendance_image_path + '/' + updated_name + '.jpg'), image)
+                print('Image saved successfully.')
+                image_list = os.listdir(attendance_image_path)
+                image_names.append(updated_name)
+                encode_list_known.append(encodeOneImage(image))
+                window.destroy()
+            else:
+                cv.imwrite((attendance_image_path + '/' + image_name + '.jpg'), image)
+                print('Image saved successfully.')
+                image_list = os.listdir(attendance_image_path)
+                image_names.append(image_name)
+                encode_list_known.append(encodeOneImage(image))
+                window.destroy()
+        else:
+            lbl2 = Label(window, text="Name cannot be empty!", foreground='red', font=('Arial Bold', 8))
+            lbl2.grid(column=1, row=1)
 
     txt = Entry(window, width=20, font=('Arial 12'), bg='white')
     txt.bind('<Return>', clicked)
     txt.grid(column=1, row=0, pady=20)
     btn = Button(window, text="Save", command=clicked, height=2, width=15)
-    btn.grid(column=1, row=1, pady=10)
+    btn.grid(column=1, row=2, pady=10)
     window.mainloop()
 
 
@@ -101,7 +115,7 @@ while True:
         face_distance = face_recognition.face_distance(encode_list_known, encode_face)
         match_index = np.argmin(face_distance)
         if matches[match_index]:
-            name = image_names[match_index].upper()
+            name = image_names[match_index]
             y1, x2, y2, x1 = face_location
             y1, x2, y2, x1 = y1 * 2, x2 * 2, y2 * 2, x1 * 2
             cv.rectangle(frame_image, (x1, y1), (x2, y2), (0, 255, 0), 3)
