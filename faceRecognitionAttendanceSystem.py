@@ -13,21 +13,13 @@ image_names = []
 encode_list_known = []
 image_list = os.listdir(attendance_image_path)
 print('-----------------------------------------------')
-<<<<<<< HEAD
 print('|              Getting Started...             |')
-=======
-print('|               Getting Started...            |')
->>>>>>> 490f8c900fe4e982308f8f28942c177130d71fe6
 print('-----------------------------------------------')
 print('Loading Images...')
 for image in image_list:
     current_img = cv.imread(f'{attendance_image_path}/{image}')
     images.append(current_img)
-<<<<<<< HEAD
     image_names.append(os.path.splitext(image)[0].title())
-=======
-    image_names.append(os.path.splitext(image)[0])
->>>>>>> 490f8c900fe4e982308f8f28942c177130d71fe6
 
 
 def markAttendance(name):
@@ -58,7 +50,6 @@ def encodeOneImage(image):
 
 
 def captureUnknownFace(image):
-<<<<<<< HEAD
     window = Tk()
     window.title('Enter Image Name')
     window.geometry('350x150')
@@ -92,37 +83,12 @@ def captureUnknownFace(image):
         else:
             lbl2 = Label(window, text="Name cannot be empty!", foreground='red', font=('Arial Bold', 8))
             lbl2.grid(column=1, row=1)
-=======
-    global encode_list_known
-
-    window = Tk()
-    window.title('Enter Image Name')
-    window.geometry('350x200')
-    lbl = Label(window, text="Enter Name: ", font=('Arial Bold', 10), padx=10, pady=20)
-    lbl.pack(padx=10, pady=30)
-    lbl.grid(column=0, row=0)
-
-    def clicked(event=None):
-        global image_list, image_names
-        if txt.get() is not None:
-            image_name = txt.get()
-            cv.imwrite((attendance_image_path + '/' + image_name + '.jpg'), image)
-            print('Image saved successfully.')
-            image_list = os.listdir(attendance_image_path)
-            image_names.append(image_name)
-            encode_list_known.append(encodeOneImage(image))
-            window.destroy()
->>>>>>> 490f8c900fe4e982308f8f28942c177130d71fe6
 
     txt = Entry(window, width=20, font=('Arial 12'), bg='white')
     txt.bind('<Return>', clicked)
     txt.grid(column=1, row=0, pady=20)
     btn = Button(window, text="Save", command=clicked, height=2, width=15)
-<<<<<<< HEAD
     btn.grid(column=1, row=2, pady=10)
-=======
-    btn.grid(column=1, row=1, pady=10)
->>>>>>> 490f8c900fe4e982308f8f28942c177130d71fe6
     window.mainloop()
 
 
@@ -162,17 +128,10 @@ while True:
                 cv.imshow('Camera', frame_image)
                 playsound('Audio/well_done.mp3')
 
-<<<<<<< HEAD
                 # engine = pytts.init()
                 # engine.say(name + ', Your Attendance is completed.')
                 # engine.runAndWait()
                 # engine.stop()
-=======
-                engine = pytts.init()
-                engine.say(name + ', Your Attendance is completed.')
-                engine.runAndWait()
-                engine.stop()
->>>>>>> 490f8c900fe4e982308f8f28942c177130d71fe6
             else:
                 if temp != name:
                     cv.putText(frame_image, f'{name} (Done)', (x1 + 6, y2 + 25), cv.FONT_HERSHEY_DUPLEX, 0.5,
@@ -180,17 +139,10 @@ while True:
                     cv.imshow('Camera', frame_image)
                     print(f"'{name}', your attendance is already registered.")
 
-<<<<<<< HEAD
                     # engine = pytts.init()
                     # engine.say(name + ', Your Attendance is already registered.')
                     # engine.runAndWait()
                     # engine.stop()
-=======
-                    engine = pytts.init()
-                    engine.say(name + ', Your Attendance is already registered.')
-                    engine.runAndWait()
-                    engine.stop()
->>>>>>> 490f8c900fe4e982308f8f28942c177130d71fe6
 
                     temp = name
                 else:
