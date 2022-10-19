@@ -12,10 +12,13 @@ images = []
 image_names = []
 encode_list_known = []
 image_list = os.listdir(attendance_image_path)
+
 print('-----------------------------------------------')
 print('|              Getting Started...             |')
 print('-----------------------------------------------')
+
 print('Loading Images...')
+
 for image in image_list:
     current_img = cv.imread(f'{attendance_image_path}/{image}')
     images.append(current_img)
@@ -32,7 +35,8 @@ def markAttendance(name):
         if name not in attendance_name_list:
             now = datetime.now()
             time_string = now.strftime('%H:%M:%S')
-            attendance_file.writelines(f'\n{name}, {time_string}')
+            date_string = now.date()
+            attendance_file.writelines(f'\n{name}, {time_string}, {date_string}')
             return True
 
 
@@ -60,13 +64,23 @@ def captureUnknownFace(image):
         global image_list, image_names, encode_list_known
         image_name = txt.get().title()
         if image_name != '':
+            image_number_list = []
+            for name in image_names:
+                # image_number = [int(i) for i in name.split() if i.isdigit()]
+                image_number = int(''.join(filter(str.isdigit, name)))
+                image_number_list.append(image_number)
+            print(image_number_list)
+            image_name += ' ' + str(max(image_number_list) + 1).zfill(3)
+
+            '''
+            # this part of code checks and manages if same-named is already exist or not
             if image_name in image_names:
                 updated_name = image_name
                 count = 0
                 while os.path.isfile(attendance_image_path + '/' + updated_name + '.jpg') \
                         or os.path.isfile(attendance_image_path + '/' + updated_name + '.png'):
                     count = count + 1
-                    updated_name = image_name + ' ' + str(count)
+                    updated_name = image_name + ' ' + str(count).zfill(3)
                 cv.imwrite((attendance_image_path + '/' + updated_name + '.jpg'), image)
                 print('Image saved successfully.')
                 image_list = os.listdir(attendance_image_path)
@@ -74,12 +88,15 @@ def captureUnknownFace(image):
                 encode_list_known.append(encodeOneImage(image))
                 window.destroy()
             else:
-                cv.imwrite((attendance_image_path + '/' + image_name + '.jpg'), image)
-                print('Image saved successfully.')
-                image_list = os.listdir(attendance_image_path)
-                image_names.append(image_name)
-                encode_list_known.append(encodeOneImage(image))
-                window.destroy()
+            '''
+
+            cv.imwrite((attendance_image_path + '/' + image_name + '.jpg'), image)
+            print('Image saved successfully.')
+            image_list = os.listdir(attendance_image_path)
+            image_names.append(image_name)
+            encode_list_known.append(encodeOneImage(image))
+            window.destroy()
+
         else:
             lbl2 = Label(window, text="Name cannot be empty!", foreground='red', font=('Arial Bold', 8))
             lbl2.grid(column=1, row=1)
@@ -113,6 +130,7 @@ while True:
     for encode_face, face_location in zip(encoded_current_frame, current_frame_location):
         matches = face_recognition.compare_faces(encode_list_known, encode_face)
         face_distance = face_recognition.face_distance(encode_list_known, encode_face)
+        print('face distance: ', face_distance)
         match_index = np.argmin(face_distance)
         if matches[match_index]:
             name = image_names[match_index]
