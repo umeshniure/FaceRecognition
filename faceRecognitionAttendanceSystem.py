@@ -6,6 +6,8 @@ import face_recognition
 import pyttsx3 as pytts
 from datetime import datetime
 from playsound import playsound
+from pydub import AudioSegment
+from pydub.playback import play
 
 attendance_image_path = 'AttendanceImages'
 images = []
@@ -144,7 +146,12 @@ while True:
                 print(f"'{name}', your attendance is registered successfully.")
                 cv.rectangle(frame_image, (x1, y1), (x2, y2), (0, 255, 0), cv.FILLED)
                 cv.imshow('Camera', frame_image)
+
+                # playsound() wotks in wondows but not in raspberry pi
                 playsound('Audio/well_done.mp3')
+
+                # works in both windows and raspberry pi. platoform independent
+                # play(AudioSegment.from_mp3("../Audio/well_done.mp3"))
 
                 # engine = pytts.init()
                 # engine.say(name + ', Your Attendance is completed.')
