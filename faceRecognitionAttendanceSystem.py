@@ -107,7 +107,7 @@ def captureUnknownFace(image):
             lbl2 = Label(window, text="Name cannot be empty!", foreground='red', font=('Arial Bold', 8))
             lbl2.grid(column=1, row=1)
 
-    txt = Entry(window, width=20, font=('Arial 12'), bg='white')
+    txt = Entry(window, width=20, font='Arial 12', bg='white')
     txt.bind('<Return>', clicked)
     txt.grid(column=1, row=0, pady=20)
     btn = Button(window, text="Save", command=clicked, height=2, width=15)

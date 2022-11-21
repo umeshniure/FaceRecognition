@@ -20,7 +20,7 @@ while True:
     for (x, y, width, height) in faces:
         cv2.rectangle(frame, (x, y), (x + width, y + height), (255, 255, 0), 2)
         cv2.putText(frame, "press 'q' to exit.", (0, 15), cv2.FONT_HERSHEY_TRIPLEX, 0.5,  (0, 255, 0), thickness=1)
-        cv2.imshow("Faces", frame)
+        cv2.imshow("Camera", frame)
     if cv2.waitKey(1) == ord("q"):
         break
 
